@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D मराठा vs मुगल युद्ध</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind:wght@400;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Hind', sans-serif;
+        }
+        body {
+            overflow: hidden;
+            background: linear-gradient(to bottom, #1a2a6c, #b21f1f, #fdbb2d);
+        }
+        #container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+        #canvas {
+            display: block;
+        }
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            color: white;
+            text-align: center;
+            pointer-events: none;
+        }
+        #title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        }
+        #instructions {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+        #resources {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        .resource {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid gold;
+        }
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            pointer-events: all;
+        }
+        .control-btn {
+            padding: 12px 25px;
+            background: linear-gradient(to bottom, #8b4513, #6b340b);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: all 0.2s;
+        }
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        #team-selection {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 3px solid gold;
+            z-index: 10;
+        }
+        #team-selection h2 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+        .team-btn {
+            padding: 15px 40px;
+            margin: 10px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        #maratha-btn {
+            background: linear-gradient(to bottom, #d72828, #a02020);
+            color: white;
+        }
+        #mughal-btn {
+            background: linear-gradient(to bottom, #1e90ff, #0066cc);
+            color: white;
+        }
+        .team-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        
+        <div id="ui">
+            <h1 id="title">3D मराठा vs मुगल युद्ध</h1>
+            <p id="instructions">विरोधी किले पर कब्जा करने के लिए अपनी सेना का निर्माण करें</p>
+            
+            <div id="resources">
+                <div class="resource">सोना: <span id="gold">100</span></div>
+                <div class="resource">सैनिक: <span id="soldiers">5</span></div>
+                <div class="resource">क्षेत्र: <span id="territory">1</span></div>
+            </div>
+        </div>
+        
+        <div id="controls">
+            <button class="control-btn" id="infantry-btn">पैदल सैनिक (20)</button>
+            <button class="control-btn" id="cavalry-btn">घुड़सवार (30)</button>
+            <button class="control-btn" id="archer-btn">धनुर्धर (25)</button>
+        </div>
+        
+        <div id="team-selection">
+            <h2>अपनी सेना चुनें</h2>
+            <button class="team-btn" id="maratha-btn">मराठा साम्राज्य</button>
+            <button class="team-btn" id="mughal-btn">मुगल साम्राज्य</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
