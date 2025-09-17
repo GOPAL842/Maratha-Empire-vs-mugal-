@@ -1,3 +1,5 @@
+// script.js - मराठा vs मुगल 3D युद्ध गेम
+
 // मुख्य गेम वेरिएबल्स
 let scene, camera, renderer;
 let gold = 100;
@@ -18,16 +20,14 @@ let soldierLevels = {
     infantry: 1,
     cavalry: 1,
     archer: 1,
-    elephant: 1,
-    cannon: 0
+    elephant: 1
 };
 
 let soldierStats = {
     infantry: { attack: 10, health: 100, speed: 0.1 },
     cavalry: { attack: 15, health: 120, speed: 0.15 },
     archer: { attack: 8, health: 80, speed: 0.08, range: 15 },
-    elephant: { attack: 25, health: 200, speed: 0.07 },
-    cannon: { attack: 40, health: 150, speed: 0.04, range: 20 }
+    elephant: { attack: 25, health: 200, speed: 0.07 }
 };
 
 // मिशन सिस्टम
@@ -41,20 +41,11 @@ let currentMission = {
     completed: false
 };
 
-let missions = [
-    { id: 1, title: "प्रारंभिक सेना", desc: "5 सैनिकों को प्रशिक्षित करें", target: 5, reward: { gold: 100, xp: 50 } },
-    { id: 2, title: "पहली जीत", desc: "10 दुश्मन सैनिकों को हराएं", target: 10, reward: { gold: 200, xp: 100 } },
-    { id: 3, title: "क्षेत्र विस्तार", desc: "3 क्षेत्रों पर कब्जा करें", target: 3, reward: { gold: 300, xp: 150 } },
-    { id: 4, title: "सेना मजबूत करें", desc: "किसी भी सैनिक को लेवल 5 तक अपग्रेड करें", target: 5, reward: { gold: 400, xp: 200 } },
-    { id: 5, title: "संसाधन जुटाएं", desc: "1000 सोना इकट्ठा करें", target: 1000, reward: { gold: 500, xp: 250 } }
-];
-
 // गेम ऑब्जेक्ट्स
 let playerFort = null;
 let enemyFort = null;
 let soldierModels = [];
 let terrain = null;
-let humanModels = [];
 
 // गेम इनिशियलाइजेशन
 function init() {
@@ -97,13 +88,11 @@ function init() {
     document.getElementById('cavalry-btn').addEventListener('click', () => buySoldier('cavalry'));
     document.getElementById('archer-btn').addEventListener('click', () => buySoldier('archer'));
     document.getElementById('elephant-btn').addEventListener('click', () => buySoldier('elephant'));
-    document.getElementById('cannon-btn').addEventListener('click', () => buySoldier('cannon'));
     
     document.getElementById('upgrade-infantry').addEventListener('click', () => upgradeSoldier('infantry'));
     document.getElementById('upgrade-cavalry').addEventListener('click', () => upgradeSoldier('cavalry'));
     document.getElementById('upgrade-archer').addEventListener('click', () => upgradeSoldier('archer'));
     document.getElementById('upgrade-elephant').addEventListener('click', () => upgradeSoldier('elephant'));
-    document.getElementById('upgrade-cannon').addEventListener('click', () => upgradeSoldier('cannon'));
     
     // रिसाइज इवेंट
     window.addEventListener('resize', onWindowResize);
@@ -228,99 +217,153 @@ function addRocks() {
     }
 }
 
-// मानव जैसी सेना बनाना
-function createHumanSoldier(type, team, isPlayer) {
+// मराठा और मुगल सैनिक बनाना
+function createHistoricalSoldier(type, team, isPlayer) {
     const group = new THREE.Group();
     
-    // शरीर
-    const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1.5, 8);
-    const bodyMaterial = new THREE.MeshLambertMaterial({ 
+    // सैनिक का आधार
+    const baseGeometry = new THREE.CylinderGeometry(0.3, 0.4, 0.2, 16);
+    const baseMaterial = new THREE.MeshLambertMaterial({ 
         color: team === 'maratha' ? 0xd72828 : 0x1e90ff 
     });
+    const base = new THREE.Mesh(baseGeometry, baseMaterial);
+    base.position.y = 0.1;
+    group.add(base);
+    
+    // सैनिक का शरीर
+    const bodyGeometry = new THREE.CylinderGeometry(0.3, 0.3, 1.5, 16);
+    let bodyMaterial;
+    
+    if (team === 'maratha') {
+        // मराठा सैनिक - केसरिया वस्त्र
+        bodyMaterial = new THREE.MeshLambertMaterial({ color: 0xFF8C00 });
+    } else {
+        // मुगल सैनिक - हरे वस्त्र
+        bodyMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+    }
+    
     const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-    body.position.y = 1.5;
+    body.position.y = 0.95;
     group.add(body);
     
     // सिर
-    const headGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+    const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);
     const headMaterial = new THREE.MeshLambertMaterial({ color: 0xFFDBAC });
     const head = new THREE.Mesh(headGeometry, headMaterial);
-    head.position.y = 2.5;
+    head.position.y = 1.8;
     group.add(head);
     
-    // हथियार जोड़ें (सैनिक प्रकार के अनुसार)
+    // पगड़ी/हेलमेट
+    const helmetGeometry = new THREE.CylinderGeometry(0.3, 0.35, 0.3, 16);
+    let helmetMaterial;
+    
+    if (team === 'maratha') {
+        // मराठा पगड़ी - केसरिया
+        helmetMaterial = new THREE.MeshLambertMaterial({ color: 0xFF4500 });
+    } else {
+        // मुगल हेलमेट - स्टील
+        helmetMaterial = new THREE.MeshLambertMaterial({ color: 0xA0A0A0 });
+    }
+    
+    const helmet = new THREE.Mesh(helmetGeometry, helmetMaterial);
+    helmet.position.y = 2.0;
+    group.add(helmet);
+    
+    // हथियार जोड़ें
     if (type === 'infantry') {
         // तलवार
-        const swordGeometry = new THREE.BoxGeometry(0.1, 1, 0.3);
+        const swordGeometry = new THREE.BoxGeometry(0.05, 1.0, 0.1);
         const swordMaterial = new THREE.MeshLambertMaterial({ color: 0xCCCCCC });
         const sword = new THREE.Mesh(swordGeometry, swordMaterial);
-        sword.position.set(0.8, 1.5, 0);
+        sword.position.set(0.4, 1.2, 0);
         sword.rotation.z = Math.PI / 4;
         group.add(sword);
-    } else if (type === 'archer') {
-        // धनुष
-        const bowGeometry = new THREE.TorusGeometry(0.5, 0.1, 8, 20, Math.PI);
-        const bowMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-        const bow = new THREE.Mesh(bowGeometry, bowMaterial);
-        bow.position.set(0.8, 1.8, 0);
-        bow.rotation.y = Math.PI / 2;
-        group.add(bow);
+        
+        // ढाल (मराठा सैनिकों के लिए)
+        if (team === 'maratha') {
+            const shieldGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.05, 16);
+            const shieldMaterial = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
+            const shield = new THREE.Mesh(shieldGeometry, shieldMaterial);
+            shield.position.set(-0.4, 1.2, 0);
+            shield.rotation.x = Math.PI / 2;
+            group.add(shield);
+        }
     } else if (type === 'cavalry') {
         // घोड़ा
-        const horseBodyGeometry = new THREE.CylinderGeometry(0.4, 0.6, 1, 8);
-        const horseBodyMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+        const horseBodyGeometry = new THREE.CylinderGeometry(0.4, 0.5, 1.2, 16);
+        const horseBodyMaterial = new THREE.MeshLambertMaterial({ 
+            color: team === 'maratha' ? 0x8B4513 : 0x4B0082 
+        });
         const horseBody = new THREE.Mesh(horseBodyGeometry, horseBodyMaterial);
-        horseBody.position.y = 0.5;
+        horseBody.position.y = 0.8;
         group.add(horseBody);
         
-        const horseHeadGeometry = new THREE.CylinderGeometry(0.2, 0.3, 0.5, 8);
+        const horseHeadGeometry = new THREE.CylinderGeometry(0.2, 0.25, 0.5, 16);
         const horseHead = new THREE.Mesh(horseHeadGeometry, horseBodyMaterial);
-        horseHead.position.set(0, 0.8, 0.6);
+        horseHead.position.set(0, 1.0, 0.5);
         horseHead.rotation.x = Math.PI / 2;
         group.add(horseHead);
         
         // सवार को ऊपर उठाएं
-        body.position.y = 2;
-        head.position.y = 3;
+        body.position.y = 1.8;
+        head.position.y = 2.6;
+        helmet.position.y = 2.8;
+        
+        // भाला
+        const spearGeometry = new THREE.CylinderGeometry(0.05, 0.05, 2.0, 8);
+        const spearMaterial = new THREE.MeshLambertMaterial({ color: 0xD2691E });
+        const spear = new THREE.Mesh(spearGeometry, spearMaterial);
+        spear.position.set(0.5, 2.0, 0);
+        spear.rotation.z = Math.PI / 4;
+        group.add(spear);
+    } else if (type === 'archer') {
+        // धनुष
+        const bowGeometry = new THREE.TorusGeometry(0.4, 0.05, 8, 20, Math.PI);
+        const bowMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+        const bow = new THREE.Mesh(bowGeometry, bowMaterial);
+        bow.position.set(0.4, 1.6, 0);
+        bow.rotation.y = Math.PI / 2;
+        group.add(bow);
+        
+        // तरकश
+        const quiverGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.6, 16);
+        const quiverMaterial = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
+        const quiver = new THREE.Mesh(quiverGeometry, quiverMaterial);
+        quiver.position.set(-0.4, 1.5, 0);
+        quiver.rotation.x = Math.PI / 2;
+        group.add(quiver);
     } else if (type === 'elephant') {
         // हाथी
-        const elephantBodyGeometry = new THREE.CylinderGeometry(1, 1.2, 2, 8);
-        const elephantBodyMaterial = new THREE.MeshLambertMaterial({ color: 0x888888 });
+        const elephantBodyGeometry = new THREE.CylinderGeometry(1.0, 1.2, 2.0, 16);
+        const elephantBodyMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
         const elephantBody = new THREE.Mesh(elephantBodyGeometry, elephantBodyMaterial);
-        elephantBody.position.y = 1;
+        elephantBody.position.y = 1.2;
         group.add(elephantBody);
         
-        const elephantHeadGeometry = new THREE.SphereGeometry(0.7, 16, 16);
+        const elephantHeadGeometry = new THREE.SphereGeometry(0.8, 16, 16);
         const elephantHead = new THREE.Mesh(elephantHeadGeometry, elephantBodyMaterial);
-        elephantHead.position.set(0, 1.5, 1);
+        elephantHead.position.set(0, 1.8, 1.2);
         group.add(elephantHead);
         
-        const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 1.5, 8);
+        const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.25, 1.5, 16);
         const trunk = new THREE.Mesh(trunkGeometry, elephantBodyMaterial);
-        trunk.position.set(0, 0.8, 1.8);
+        trunk.position.set(0, 1.2, 2.0);
         trunk.rotation.x = Math.PI / 4;
         group.add(trunk);
         
         // सवार को ऊपर उठाएं
-        body.position.y = 2.5;
-        head.position.y = 3.5;
-    } else if (type === 'cannon') {
-        // तोप
-        const cannonBaseGeometry = new THREE.CylinderGeometry(0.8, 0.8, 0.5, 16);
-        const cannonBaseMaterial = new THREE.MeshLambertMaterial({ color: 0x444444 });
-        const cannonBase = new THREE.Mesh(cannonBaseGeometry, cannonBaseMaterial);
-        cannonBase.position.y = 0.5;
-        group.add(cannonBase);
+        body.position.y = 2.8;
+        head.position.y = 3.6;
+        helmet.position.y = 3.8;
         
-        const cannonBarrelGeometry = new THREE.CylinderGeometry(0.2, 0.3, 2, 16);
-        const cannonBarrel = new THREE.Mesh(cannonBarrelGeometry, cannonBaseMaterial);
-        cannonBarrel.position.set(0, 1, 0.8);
-        cannonBarrel.rotation.x = Math.PI / 6;
-        group.add(cannonBarrel);
-        
-        // तोपची
-        body.position.y = 1.5;
-        head.position.y = 2.5;
+        // हौदा
+        const howdahGeometry = new THREE.BoxGeometry(1.0, 0.5, 1.0);
+        const howdahMaterial = new THREE.MeshLambertMaterial({ 
+            color: team === 'maratha' ? 0x8B0000 : 0x006400 
+        });
+        const howdah = new THREE.Mesh(howdahGeometry, howdahMaterial);
+        howdah.position.set(0, 2.2, 0);
+        group.add(howdah);
     }
     
     // स्थिति निर्धारित करें
@@ -355,7 +398,7 @@ function createHumanSoldier(type, team, isPlayer) {
     };
     
     scene.add(group);
-    humanModels.push(group);
+    soldierModels.push(group);
     soldiers++;
     
     // मिशन प्रगति अपडेट करें
@@ -368,6 +411,74 @@ function createHumanSoldier(type, team, isPlayer) {
     return group;
 }
 
+// किले बनाना (ताबर की तरह)
+function createHistoricalFort(team, isPlayer) {
+    const group = new THREE.Group();
+    
+    // किले का मुख्य भाग
+    const fortBaseGeometry = new THREE.CylinderGeometry(8, 10, 6, 16);
+    const fortBaseMaterial = new THREE.MeshLambertMaterial({ 
+        color: 0xA0522D 
+    });
+    const fortBase = new THREE.Mesh(fortBaseGeometry, fortBaseMaterial);
+    fortBase.position.y = 3;
+    group.add(fortBase);
+    
+    // किले की दीवारें
+    const wallGeometry = new THREE.CylinderGeometry(9, 9, 2, 16);
+    const wallMaterial = new THREE.MeshLambertMaterial({ 
+        color: 0x8B4513 
+    });
+    const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+    wall.position.y = 5;
+    group.add(wall);
+    
+    // किले के ऊपर का भाग
+    const topGeometry = new THREE.CylinderGeometry(7, 8, 2, 16);
+    const topMaterial = new THREE.MeshLambertMaterial({ 
+        color: team === 'maratha' ? 0xd72828 : 0x1e90ff 
+    });
+    const top = new THREE.Mesh(topGeometry, topMaterial);
+    top.position.y = 6;
+    group.add(top);
+    
+    // किले के झंडे
+    const flagPoleGeometry = new THREE.CylinderGeometry(0.1, 0.1, 3, 8);
+    const flagPoleMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+    const flagPole = new THREE.Mesh(flagPoleGeometry, flagPoleMaterial);
+    flagPole.position.set(0, 7.5, 0);
+    group.add(flagPole);
+    
+    const flagGeometry = new THREE.PlaneGeometry(1.5, 1);
+    const flagMaterial = new THREE.MeshLambertMaterial({ 
+        color: team === 'maratha' ? 0xd72828 : 0x1e90ff,
+        side: THREE.DoubleSide
+    });
+    const flag = new THREE.Mesh(flagGeometry, flagMaterial);
+    flag.position.set(0.75, 7.5, 0);
+    group.add(flag);
+    
+    // किले की स्थिति निर्धारित करें
+    if (isPlayer) {
+        group.position.set(0, 0, -40);
+    } else {
+        group.position.set(0, 0, 40);
+    }
+    
+    group.castShadow = true;
+    group.receiveShadow = true;
+    
+    // किले का डेटा संग्रहीत करें
+    group.userData = {
+        team: team,
+        health: 1000,
+        maxHealth: 1000
+    };
+    
+    scene.add(group);
+    return group;
+}
+
 // टीम चयन
 function selectTeam(team) {
     playerTeam = team;
@@ -375,7 +486,8 @@ function selectTeam(team) {
     gameStarted = true;
     
     // किले बनाएं
-    createForts();
+    playerFort = createHistoricalFort(playerTeam, true);
+    enemyFort = createHistoricalFort(playerTeam === 'maratha' ? 'mughal' : 'maratha', false);
     
     // प्रारंभिक सैनिक जोड़ें
     addInitialSoldiers();
@@ -386,46 +498,20 @@ function selectTeam(team) {
     updateSoldierStatsUI();
 }
 
-// किले बनाना
-function createForts() {
-    const fortGeometry = new THREE.BoxGeometry(8, 6, 8);
-    
-    // प्लेयर का किला
-    const playerFortMaterial = new THREE.MeshLambertMaterial({ 
-        color: playerTeam === 'maratha' ? 0xd72828 : 0x1e90ff 
-    });
-    playerFort = new THREE.Mesh(fortGeometry, playerFortMaterial);
-    playerFort.position.set(0, 3, -40);
-    playerFort.castShadow = true;
-    playerFort.receiveShadow = true;
-    scene.add(playerFort);
-    
-    // दुश्मन का किला
-    const enemyTeam = playerTeam === 'maratha' ? 'mughal' : 'maratha';
-    const enemyFortMaterial = new THREE.MeshLambertMaterial({ 
-        color: enemyTeam === 'maratha' ? 0xd72828 : 0x1e90ff 
-    });
-    enemyFort = new THREE.Mesh(fortGeometry, enemyFortMaterial);
-    enemyFort.position.set(0, 3, 40);
-    enemyFort.castShadow = true;
-    enemyFort.receiveShadow = true;
-    scene.add(enemyFort);
-}
-
 // प्रारंभिक सैनिक जोड़ें
 function addInitialSoldiers() {
     for (let i = 0; i < 3; i++) {
-        createHumanSoldier('infantry', playerTeam, true);
+        createHistoricalSoldier('infantry', playerTeam, true);
     }
     
     for (let i = 0; i < 2; i++) {
-        createHumanSoldier('cavalry', playerTeam, true);
+        createHistoricalSoldier('cavalry', playerTeam, true);
     }
     
     for (let i = 0; i < 5; i++) {
         const types = ['infantry', 'cavalry', 'archer'];
         const type = types[Math.floor(Math.random() * types.length)];
-        createHumanSoldier(type, playerTeam === 'maratha' ? 'mughal' : 'maratha', false);
+        createHistoricalSoldier(type, playerTeam === 'maratha' ? 'mughal' : 'maratha', false);
     }
 }
 
@@ -435,13 +521,12 @@ function buySoldier(type) {
         'infantry': 20,
         'cavalry': 30,
         'archer': 25,
-        'elephant': 40,
-        'cannon': 60
+        'elephant': 40
     };
     
-    if (gold >= cost[type] && (type !== 'cannon' || soldierLevels.cannon > 0)) {
+    if (gold >= cost[type]) {
         gold -= cost[type];
-        createHumanSoldier(type, playerTeam, true);
+        createHistoricalSoldier(type, playerTeam, true);
         updateUI();
     }
 }
@@ -452,8 +537,7 @@ function upgradeSoldier(type) {
         'infantry': 50,
         'cavalry': 75,
         'archer': 60,
-        'elephant': 100,
-        'cannon': 150
+        'elephant': 100
     };
     
     const maxLevel = 10;
@@ -463,7 +547,7 @@ function upgradeSoldier(type) {
         soldierLevels[type]++;
         
         // मौजूदा सैनिकों को अपग्रेड करें
-        humanModels.forEach(soldier => {
+        soldierModels.forEach(soldier => {
             if (soldier.userData.type === type && soldier.userData.team === playerTeam) {
                 soldier.userData.level = soldierLevels[type];
                 soldier.userData.attack = soldierStats[type].attack * (1 + (soldierLevels[type] - 1) * 0.15);
@@ -478,12 +562,6 @@ function upgradeSoldier(type) {
         
         updateUI();
         updateSoldierStatsUI();
-        
-        // मिशन प्रगति अपडेट करें (यदि लेवल 5 तक पहुँचा है)
-        if (soldierLevels[type] >= 5) {
-            missionsCompleted++;
-            updateAchievements();
-        }
     }
 }
 
@@ -510,18 +588,8 @@ function addXP(amount) {
             document.getElementById('elephant-stats').style.display = 'block';
         }
         
-        if (currentLevel >= 5 && soldierLevels.cannon === 0) {
-            soldierLevels.cannon = 1;
-            document.getElementById('cannon-btn').style.display = 'block';
-            document.getElementById('upgrade-cannon').style.display = 'block';
-            document.getElementById('cannon-stats').style.display = 'block';
-        }
-        
         // लेवल अप नोटिफिकेशन दिखाएं
         showLevelUpNotification(oldLevel, currentLevel);
-        
-        // उपलब्धियाँ अपडेट करें
-        updateAchievements();
     }
     
     updateLevelUI();
@@ -554,38 +622,7 @@ function updateMissionProgress() {
         gold += currentMission.reward.gold;
         addXP(currentMission.reward.xp);
         
-        // अगला मिशन सेट करें
-        const nextMission = missions.find(m => m.id === currentMission.id + 1);
-        if (nextMission) {
-            currentMission = {
-                id: nextMission.id,
-                title: nextMission.title,
-                description: nextMission.desc,
-                target: nextMission.target,
-                current: 0,
-                reward: nextMission.reward,
-                completed: false
-            };
-        }
-        
         missionsCompleted++;
-        updateAchievements();
-        updateMissionUI();
-    }
-}
-
-// उपलब्धियाँ अपडेट करना
-function updateAchievements() {
-    if (soldiers >= 1) {
-        document.getElementById('ach1').textContent = 'पहला सैनिक - ✅';
-    }
-    
-    if (enemiesDefeated >= 10) {
-        document.getElementById('ach2').textContent = '10 दुश्मन हराए - ✅';
-    }
-    
-    if (currentLevel >= 10) {
-        document.getElementById('ach3').textContent = 'लेवल 10 पूरा - ✅';
     }
 }
 
@@ -602,7 +639,6 @@ function updateUI() {
     document.getElementById('cavalry-level').textContent = soldierLevels.cavalry;
     document.getElementById('archer-level').textContent = soldierLevels.archer;
     document.getElementById('elephant-level').textContent = soldierLevels.elephant;
-    document.getElementById('cannon-level').textContent = soldierLevels.cannon;
 }
 
 // लेवल UI अपडेट करना
@@ -621,9 +657,8 @@ function updateSoldierStatsUI() {
     document.getElementById('cavalry-stats').textContent = `लेवल ${soldierLevels.cavalry} (${soldierStats.cavalry.attack * (1 + (soldierLevels.cavalry - 1) * 0.15)} हमला)`;
     document.getElementById('archer-stats').textContent = `लेवल ${soldierLevels.archer} (${soldierStats.archer.attack * (1 + (soldierLevels.archer - 1) * 0.15)} हमला)`;
     document.getElementById('elephant-stats').textContent = `लेवल ${soldierLevels.elephant} (${soldierStats.elephant.attack * (1 + (soldierLevels.elephant - 1) * 0.15)} हमला)`;
-    document.getElementById('cannon-stats').textContent = `लेवल ${soldierLevels.cannon} (${soldierStats.cannon.attack * (1 + (soldierLevels.cannon - 1) * 0.15)} हमला)`;
     
-    // शुरुआत में हाथी सवार और तोपची छुपाएं
+    // शुरुआत में हाथी सवार छुपाएं
     if (currentLevel < 3) {
         document.getElementById('elephant-btn').style.display = 'none';
         document.getElementById('upgrade-elephant').style.display = 'none';
@@ -632,16 +667,6 @@ function updateSoldierStatsUI() {
         document.getElementById('elephant-btn').style.display = 'block';
         document.getElementById('upgrade-elephant').style.display = 'block';
         document.getElementById('elephant-stats').style.display = 'block';
-    }
-    
-    if (currentLevel < 5) {
-        document.getElementById('cannon-btn').style.display = 'none';
-        document.getElementById('upgrade-cannon').style.display = 'none';
-        document.getElementById('cannon-stats').style.display = 'none';
-    } else {
-        document.getElementById('cannon-btn').style.display = 'block';
-        document.getElementById('upgrade-cannon').style.display = 'block';
-        document.getElementById('cannon-stats').style.display = 'block';
     }
 }
 
@@ -664,12 +689,6 @@ function animate() {
         if (Math.random() < 0.01) {
             gold += 5;
             updateUI();
-            
-            // मिशन प्रगति अपडेट करें (यदि संसाधन मिशन चल रहा है)
-            if (currentMission.id === 5) {
-                currentMission.current = gold;
-                updateMissionProgress();
-            }
         }
     }
     
@@ -678,7 +697,7 @@ function animate() {
 
 // सैनिकों को अपडेट करना
 function updateSoldiers() {
-    humanModels.forEach(soldier => {
+    soldierModels.forEach(soldier => {
         // लक्ष्य खोजें
         if (!soldier.userData.target || soldier.userData.target.userData.health <= 0) {
             soldier.userData.target = findNearestEnemy(soldier);
@@ -709,16 +728,10 @@ function updateSoldiers() {
                     // दुश्मन सैनिक गिनती अपडेट करें
                     if (soldier.userData.target.userData.team !== playerTeam) {
                         enemiesDefeated++;
-                        
-                        // मिशन प्रगति अपडेट करें
-                        if (currentMission.id === 2) {
-                            currentMission.current = enemiesDefeated;
-                            updateMissionProgress();
-                        }
                     }
                     
                     scene.remove(soldier.userData.target);
-                    humanModels = humanModels.filter(s => s !== soldier.userData.target);
+                    soldierModels = soldierModels.filter(s => s !== soldier.userData.target);
                     soldiers--;
                     soldier.userData.target = null;
                     updateUI();
@@ -733,7 +746,7 @@ function findNearestEnemy(soldier) {
     let nearestEnemy = null;
     let minDistance = Infinity;
     
-    humanModels.forEach(otherSoldier => {
+    soldierModels.forEach(otherSoldier => {
         if (otherSoldier.userData.team !== soldier.userData.team) {
             const distance = soldier.position.distanceTo(otherSoldier.position);
             if (distance < minDistance) {
