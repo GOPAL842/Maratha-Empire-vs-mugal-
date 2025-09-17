@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D मराठा vs मुगल युद्ध</title>
+    <title>3D मराठा vs मुगल युद्ध - सैनिक और लेवल</title>
     <link rel="stylesheet" href="style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind:wght@400;700&display=swap');
@@ -77,10 +77,17 @@
             font-weight: bold;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .control-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+        .soldier-info {
+            font-size: 0.8rem;
+            margin-top: 5px;
         }
         #team-selection {
             position: absolute;
@@ -121,6 +128,57 @@
             transform: scale(1.05);
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
         }
+        #level-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffcc00;
+            color: white;
+        }
+        #soldier-stats {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffcc00;
+            color: white;
+            width: 250px;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .stat-name {
+            font-weight: bold;
+        }
+        #upgrade-section {
+            position: absolute;
+            bottom: 100px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffcc00;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .upgrade-btn {
+            padding: 8px 15px;
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -135,13 +193,61 @@
                 <div class="resource">सोना: <span id="gold">100</span></div>
                 <div class="resource">सैनिक: <span id="soldiers">5</span></div>
                 <div class="resource">क्षेत्र: <span id="territory">1</span></div>
+                <div class="resource">लेवल: <span id="level">1</span></div>
             </div>
         </div>
         
+        <div id="level-info">
+            <h3>लेवल जानकारी</h3>
+            <p>अगला लेवल: <span id="next-level">100</span> XP</p>
+            <p>वर्तमान XP: <span id="current-xp">0</span></p>
+        </div>
+        
+        <div id="soldier-stats">
+            <h3>सैनिक स्टैट्स</h3>
+            <div class="stat-row">
+                <span class="stat-name">पैदल सैनिक:</span>
+                <span id="infantry-stats">लेवल 1</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-name">घुड़सवार:</span>
+                <span id="cavalry-stats">लेवल 1</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-name">धनुर्धर:</span>
+                <span id="archer-stats">लेवल 1</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-name">हाथी सवार:</span>
+                <span id="elephant-stats">लेवल 1</span>
+            </div>
+        </div>
+        
+        <div id="upgrade-section">
+            <h3>सैनिक अपग्रेड</h3>
+            <button class="upgrade-btn" id="upgrade-infantry">पैदल सैनिक (50 सोना)</button>
+            <button class="upgrade-btn" id="upgrade-cavalry">घुड़सवार (75 सोना)</button>
+            <button class="upgrade-btn" id="upgrade-archer">धनुर्धर (60 सोना)</button>
+            <button class="upgrade-btn" id="upgrade-elephant">हाथी सवार (100 सोना)</button>
+        </div>
+        
         <div id="controls">
-            <button class="control-btn" id="infantry-btn">पैदल सैनिक (20)</button>
-            <button class="control-btn" id="cavalry-btn">घुड़सवार (30)</button>
-            <button class="control-btn" id="archer-btn">धनुर्धर (25)</button>
+            <button class="control-btn" id="infantry-btn">
+                पैदल सैनिक (20)
+                <span class="soldier-info">लेवल <span id="infantry-level">1</span></span>
+            </button>
+            <button class="control-btn" id="cavalry-btn">
+                घुड़सवार (30)
+                <span class="soldier-info">लेवल <span id="cavalry-level">1</span></span>
+            </button>
+            <button class="control-btn" id="archer-btn">
+                धनुर्धर (25)
+                <span class="soldier-info">लेवल <span id="archer-level">1</span></span>
+            </button>
+            <button class="control-btn" id="elephant-btn">
+                हाथी सवार (40)
+                <span class="soldier-info">लेवल <span id="elephant-level">1</span></span>
+            </button>
         </div>
         
         <div id="team-selection">
@@ -154,4 +260,4 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="script.js"></script>
 </body>
-</html>
+    </html>
