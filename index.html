@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D मराठा vs मुगल युद्ध - सैनिक और लेवल</title>
+    <title>3D मराठा vs मुगल युद्ध - 50 लेवल</title>
     <link rel="stylesheet" href="style.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Hind:wght@400;700&display=swap');
@@ -34,6 +34,7 @@
             color: white;
             text-align: center;
             pointer-events: none;
+            z-index: 5;
         }
         #title {
             font-size: 2.5rem;
@@ -65,6 +66,7 @@
             display: flex;
             gap: 15px;
             pointer-events: all;
+            z-index: 10;
         }
         .control-btn {
             padding: 12px 25px;
@@ -99,7 +101,7 @@
             border-radius: 15px;
             text-align: center;
             border: 3px solid gold;
-            z-index: 10;
+            z-index: 20;
         }
         #team-selection h2 {
             color: white;
@@ -137,6 +139,7 @@
             border-radius: 10px;
             border: 2px solid #ffcc00;
             color: white;
+            z-index: 5;
         }
         #soldier-stats {
             position: absolute;
@@ -148,6 +151,7 @@
             border: 2px solid #ffcc00;
             color: white;
             width: 250px;
+            z-index: 5;
         }
         .stat-row {
             display: flex;
@@ -169,6 +173,7 @@
             display: flex;
             flex-direction: column;
             gap: 10px;
+            z-index: 5;
         }
         .upgrade-btn {
             padding: 8px 15px;
@@ -179,6 +184,75 @@
             cursor: pointer;
             font-weight: bold;
         }
+        #level-progress {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            border: 2px solid #ffcc00;
+            color: white;
+            z-index: 5;
+        }
+        #progress-bar {
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        #progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #ffcc00, #ff9900);
+            width: 0%;
+            transition: width 0.5s;
+        }
+        #mission-info {
+            position: absolute;
+            top: 170px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffcc00;
+            color: white;
+            width: 300px;
+            z-index: 5;
+        }
+        #achievements {
+            position: absolute;
+            top: 170px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffcc00;
+            color: white;
+            width: 250px;
+            z-index: 5;
+        }
+        .achievement {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-bottom: 1px solid #555;
+        }
+        #level-up-notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid gold;
+            color: white;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
@@ -186,14 +260,14 @@
         <canvas id="canvas"></canvas>
         
         <div id="ui">
-            <h1 id="title">3D मराठा vs मुगल युद्ध</h1>
+            <h1 id="title">3D मराठा vs मुगल युद्ध - लेवल <span id="current-level">1</span></h1>
             <p id="instructions">विरोधी किले पर कब्जा करने के लिए अपनी सेना का निर्माण करें</p>
             
             <div id="resources">
                 <div class="resource">सोना: <span id="gold">100</span></div>
                 <div class="resource">सैनिक: <span id="soldiers">5</span></div>
                 <div class="resource">क्षेत्र: <span id="territory">1</span></div>
-                <div class="resource">लेवल: <span id="level">1</span></div>
+                <div class="resource">लेवल: <span id="level">1</span>/50</div>
             </div>
         </div>
         
@@ -201,6 +275,26 @@
             <h3>लेवल जानकारी</h3>
             <p>अगला लेवल: <span id="next-level">100</span> XP</p>
             <p>वर्तमान XP: <span id="current-xp">0</span></p>
+        </div>
+        
+        <div id="level-progress">
+            <h3>लेवल प्रगति</h3>
+            <div id="progress-bar">
+                <div id="progress-fill"></div>
+            </div>
+        </div>
+        
+        <div id="mission-info">
+            <h3>वर्तमान मिशन</h3>
+            <p id="mission-text">प्रारंभिक सेना बनाएं और दुश्मन के 5 सैनिकों को हराएं</p>
+            <p id="mission-reward">इनाम: 100 सोना + 50 XP</p>
+        </div>
+        
+        <div id="achievements">
+            <h3>उपलब्धियाँ</h3>
+            <div class="achievement" id="ach1">पहला सैनिक - ❌</div>
+            <div class="achievement" id="ach2">10 दुश्मन हराए - ❌</div>
+            <div class="achievement" id="ach3">लेवल 10 पूरा - ❌</div>
         </div>
         
         <div id="soldier-stats">
@@ -221,6 +315,10 @@
                 <span class="stat-name">हाथी सवार:</span>
                 <span id="elephant-stats">लेवल 1</span>
             </div>
+            <div class="stat-row">
+                <span class="stat-name">तोपची:</span>
+                <span id="cannon-stats">लेवल 0</span>
+            </div>
         </div>
         
         <div id="upgrade-section">
@@ -229,6 +327,7 @@
             <button class="upgrade-btn" id="upgrade-cavalry">घुड़सवार (75 सोना)</button>
             <button class="upgrade-btn" id="upgrade-archer">धनुर्धर (60 सोना)</button>
             <button class="upgrade-btn" id="upgrade-elephant">हाथी सवार (100 सोना)</button>
+            <button class="upgrade-btn" id="upgrade-cannon">तोपची (150 सोना)</button>
         </div>
         
         <div id="controls">
@@ -248,12 +347,22 @@
                 हाथी सवार (40)
                 <span class="soldier-info">लेवल <span id="elephant-level">1</span></span>
             </button>
+            <button class="control-btn" id="cannon-btn">
+                तोपची (60)
+                <span class="soldier-info">लेवल <span id="cannon-level">0</span></span>
+            </button>
         </div>
         
         <div id="team-selection">
             <h2>अपनी सेना चुनें</h2>
             <button class="team-btn" id="maratha-btn">मराठा साम्राज्य</button>
             <button class="team-btn" id="mughal-btn">मुगल साम्राज्य</button>
+        </div>
+        
+        <div id="level-up-notification">
+            <h2>लेवल अप!</h2>
+            <p>आप लेवल <span id="new-level">2</span> पर पहुँच गए हैं!</p>
+            <p>नई क्षमताएं अनलॉक हुई हैं!</p>
         </div>
     </div>
 
