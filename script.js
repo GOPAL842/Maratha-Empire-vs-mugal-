@@ -1,7 +1,7 @@
 // script.js - मराठा vs मुगल 3D युद्ध गेम
 
 // मुख्य गेम वेरिएबल्स
-let scene, camera, renderer;
+let scene, camera, renderer, controls;
 let gold = 100;
 let soldiers = 5;
 let enemySoldiers = 5;
